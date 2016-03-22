@@ -8,20 +8,29 @@ static TextLayer *s_day_layer, *s_time_layer, *s_date_layer;
 static GFont s_time_font, s_date_font;
 
 static void update_time() {
+  /* Set up buffers */
   static char s_buffer[8];
+  static char day_buffer[10];
+  static char date_buffer[16];
   /* Get tm structure */
   time_t temp = time(NULL);
   struct tm *tick_time = localtime(&temp);
   /* Write the current hours and minutes to buffer */
   strftime(s_buffer, sizeof(s_buffer), clock_is_24h_style() ?
           "%H:%M" : "%I:%M", tick_time);
+  /* Copy date into buffer from tm structure */
+  strftime(date_buffer, sizeof(date_buffer), "%d %b %y", tick_time);
+  /* Copy day into buffer from tm structure */
+  strftime(day_buffer, sizeof(day_buffer), "%A", tick_time);
+  /* Display the day */
+  text_layer_set_text(s_day_layer, day_buffer);
+  /* Display the date */
+  text_layer_set_text(s_date_layer, date_buffer);
    /* Display this time on the TextLayer */
   text_layer_set_text(s_time_layer, s_buffer);
 }
 
 static void main_window_load(Window *window) {
-  static char day_buffer[10];
-  static char date_buffer[16];
   /* Get information about the Window */
   Layer *window_layer = window_get_root_layer(window);
   /* GRect(0,0,bounds.size.w,bounds.size.h) */
@@ -53,14 +62,6 @@ static void main_window_load(Window *window) {
   text_layer_set_text_color(s_date_layer, GColorBlack);
   text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
-  /* Copy date into buffer from tm structure */
-  strftime(date_buffer, sizeof(date_buffer), "%d %b %y", tick_time);
-  /* Copy day into buffer from tm structure */
-  strftime(day_buffer, sizeof(day_buffer), "%A", tick_time);
-  /* Display the day */
-  text_layer_set_text(s_day_layer, day_buffer);
-  /* Display the date */
-  text_layer_set_text(s_date_layer, date_buffer);
  /* Add it as a child layers to the window's root layer */
   layer_add_child(window_layer, text_layer_get_layer(s_day_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
