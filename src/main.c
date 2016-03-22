@@ -40,13 +40,13 @@ static void main_window_load(Window *window) {
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
   /* Create Day Textlayer */
   s_day_layer = text_layer_create(
-    GRect(10, 10, 124, 30));
+    GRect(0, 10, bounds.size.w, 30));
   /* Create Time TextLayer with specific bounds */
   s_time_layer = text_layer_create(
-    GRect(0, 52, bounds.size.w, 60));
+    GRect(0, 50, bounds.size.w, 60));
   /* Create Date TextLayer */
   s_date_layer = text_layer_create(
-    GRect(10, 120, 124, 30));
+    GRect(0, 120, bounds.size.w, 30));
   /* Day layout */
   text_layer_set_background_color(s_day_layer, GColorClear);
   text_layer_set_text_color(s_day_layer, GColorBlack);
@@ -66,7 +66,6 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_day_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
-  
   /* Make sure the time is shown from the start */
   update_time();
 }
@@ -85,17 +84,14 @@ static void main_window_unload(Window *window){
 static void handle_init(void) {
   /* Create main Window element and assign pointer */
   s_main_window = window_create();
-  
   /* Set handlers to manage the elemenet inside the window */
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload
   });
-  
-  /* Register with the TickTimerService */
+ /* Register with the TickTimerService */
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  
-  /* Show the window on the watch, with animated=true */
+ /* Show the window on the watch, with animated=true */
   window_stack_push(s_main_window, true);
 }
 
