@@ -30,21 +30,22 @@ static void update_time() {
 }
 
 static void main_window_load(Window *window) {
-  // Get information about the Window
+  /* Get information about the Window */
   Layer *window_layer = window_get_root_layer(window);
+  /* GRect(0,0,bounds.size.w,bounds.size.h) */
   GRect bounds = layer_get_bounds(window_layer);
-  // Set Fonts
+  /* Set Fonts */
   s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
   /* Create Day Textlayer */
   s_day_layer = text_layer_create(
-    GRect(0, 10, 144, 30));
+    GRect(10, 10, 124, 30));
   /* Create Time TextLayer with specific bounds */
   s_time_layer = text_layer_create(
-    GRect(0, 52, bounds.size.w, 50));
+    GRect(0, 52, bounds.size.w, 60));
   /* Create Date TextLayer */
   s_date_layer = text_layer_create(
-    GRect(0, 120, 144, 30));
+    GRect(10, 120, 124, 30));
   /* Day layout */
   text_layer_set_background_color(s_day_layer, GColorBlack);
   text_layer_set_text_color(s_day_layer, GColorWhite);
@@ -56,8 +57,8 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   /* Date layout */
-  text_layer_set_background_color(s_time_layer, GColorBlack);
-  text_layer_set_text_color(s_time_layer, GColorWhite);
+  text_layer_set_background_color(s_date_layer, GColorBlack);
+  text_layer_set_text_color(s_date_layer, GColorWhite);
   text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
   /* Add it as a child layers to the window's root layer */
@@ -71,7 +72,8 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 static void main_window_unload(Window *window){
-  /* Destroy TextLayer */
+  /* Destroy TextLayers */
+  text_layer_destroy(s_day_layer);
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_date_layer);
 }
@@ -102,7 +104,10 @@ void handle_deinit(void) {
 }
 
 int main(void) {
+  /* Set up app */
   handle_init();
+  /* Event loop for app */
   app_event_loop();
+  /* Clean up at app finish */
   handle_deinit();
 }
