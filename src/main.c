@@ -40,13 +40,13 @@ static void main_window_load(Window *window) {
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
   /* Create Day Textlayer */
   s_day_layer = text_layer_create(
-    GRect(0, 10, bounds.size.w, 30));
+    GRect(0, 4, bounds.size.w, 27));
   /* Create Time TextLayer with specific bounds */
   s_time_layer = text_layer_create(
-    GRect(0, 50, bounds.size.w, 60));
+    GRect(0, 40, bounds.size.w, 60));
   /* Create Date TextLayer */
   s_date_layer = text_layer_create(
-    GRect(0, 120, bounds.size.w, 30));
+    GRect(0, 90, bounds.size.w, 27));
   /* Day layout */
   text_layer_set_background_color(s_day_layer, GColorClear);
   text_layer_set_text_color(s_day_layer, GColorBlack);
