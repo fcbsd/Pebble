@@ -5,6 +5,7 @@ Window *my_window;
 static Layer *s_canvas_layer;
 static GColor myfill, mystroke; 
 static BatteryStateHandler mbh;
+static BatteryChargeState cs;
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
   /* Custom drawing happens in here. */
@@ -14,7 +15,7 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   int pos = 0;
   int vpos = 150;
   int i;
-  BatteryChargeState cs = battery_state_service_peek();
+  cs = battery_state_service_peek();
   APP_LOG(APP_LOG_LEVEL_DEBUG, "charge state %d", cs.charge_percent);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "charging %d", cs.is_charging);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "plugged in %d", cs.is_plugged); 
