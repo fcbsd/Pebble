@@ -4,9 +4,9 @@
 static Window *s_main_window;
 static TextLayer *s_day_layer, *s_time_layer, *s_date_layer;
 static Layer *s_canvas_layer;
-static GColor myfill, mystoke;
+static GColor myfill, mystroke;
 static GFont s_time_font, s_date_font;
-static BatteryStateHandler mbh;
+
 static BatteryChargeState cs;
 
 /* Function to Update Time */
@@ -29,7 +29,7 @@ static void update_time() {
   text_layer_set_text(s_day_layer, day_buffer);
   /* Display the date */
   text_layer_set_text(s_date_layer, date_buffer);
-   /* Display this time on the TextLayer */
+  /* Display this time on the TextLayer */
   text_layer_set_text(s_time_layer, s_buffer);
 }
 
@@ -49,16 +49,15 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   mystroke = GColorRed;
   if (cs.is_charging == 1) {
     myfill = GColorGreen;
-  } else {
-    myfill = GColorBlue;
-  }
-  
+  } 
   /* draw 5 circles */
   for (i = 1; i < 6; i++) {
     if (i > bp) {
       myfill = GColorRed;
+    } else {
+      myfill = GColorBlue;
     }
-    pos = start * i;  
+    pos = 144 - (start * i);  /* to draw circles from r to l */
     /* set the line colour */
     graphics_context_set_stroke_color(ctx, mystroke);
     /* set the fill colour */
@@ -106,10 +105,11 @@ static void main_window_load(Window *window) {
   text_layer_set_text_color(s_date_layer, GColorBlack);
   text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
- /* Add it as a child layers to the window's root layer */
+  /* Add it as a child layers to the window's root layer */
   layer_add_child(window_layer, text_layer_get_layer(s_day_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
+  layer_add_child(window_layer, s_canvas_layer);
   /* Make sure the time is shown from the start */
   update_time();
 }
@@ -123,28 +123,30 @@ static void main_window_unload(Window *window){
   text_layer_destroy(s_day_layer);
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_date_layer);
-  layer_destory(s_canvas_layer);
+  layer_destroy(s_canvas_layer);
 }
 
 static void handle_init(void) {
+  static BatteryStateHandler mbh;
   /* Create main Window element and assign pointer */
   s_main_window = window_create();
-  GRect bounds = layer_get_bounds(window_get_root_layer(s_main_window);
+  GRect bounds = layer_get_bounds(window_get_root_layer(s_main_window));
   /* Canvas layer */
   s_canvas_layer = layer_create(bounds);
-  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
+
   /* Set handlers to manage the elemenet inside the window */
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload
   });
- /* Register with the TickTimerService */
+  /* Register with the TickTimerService */
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
- /* subscribe battery Service */
- battery_state_service_subscribe(mbh); 
- /* add canvas layer to window */
- layer_add_child(window_get_root_layer(s_main_window), s_canvas_layer);
- /* Show the window on the watch, with animated=true */
+  /* subscribe battery Service */
+  battery_state_service_subscribe(mbh); 
+  /* add canvas layer to window */
+  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
+
+  /* Show the window on the watch, with animated=true */
   window_stack_push(s_main_window, true);
 }
 
