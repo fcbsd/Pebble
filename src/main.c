@@ -78,6 +78,8 @@ static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   /* GRect(0,0,bounds.size.w,bounds.size.h) */
   GRect bounds = layer_get_bounds(window_layer);
+  /* Canvas layer */
+  s_canvas_layer = layer_create(bounds);
   /* Set Fonts */
   s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
@@ -110,6 +112,8 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
   layer_add_child(window_layer, s_canvas_layer);
+  /* add canvas layer to window */
+  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
   /* Make sure the time is shown from the start */
   update_time();
 }
@@ -130,11 +134,7 @@ static void handle_init(void) {
   static BatteryStateHandler mbh;
   /* Create main Window element and assign pointer */
   s_main_window = window_create();
-  GRect bounds = layer_get_bounds(window_get_root_layer(s_main_window));
-  /* Canvas layer */
-  s_canvas_layer = layer_create(bounds);
-
-  /* Set handlers to manage the elemenet inside the window */
+    /* Set handlers to manage the elemenet inside the window */
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload
@@ -143,9 +143,6 @@ static void handle_init(void) {
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   /* subscribe battery Service */
   battery_state_service_subscribe(mbh); 
-  /* add canvas layer to window */
-  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
-
   /* Show the window on the watch, with animated=true */
   window_stack_push(s_main_window, true);
 }
