@@ -2,11 +2,14 @@
 #include <pebble.h>
 
 static Window *s_main_window;
-
 static TextLayer *s_day_layer, *s_time_layer, *s_date_layer;
-
+static Layer *s_canvas_layer;
+static GColor myfill, mystoke;
 static GFont s_time_font, s_date_font;
+static BatteryStateHandler mbh;
+static BatteryChargeState cs;
 
+/* Function to Update Time */
 static void update_time() {
   /* Set up buffers */
   static char s_buffer[8];
@@ -28,6 +31,47 @@ static void update_time() {
   text_layer_set_text(s_date_layer, date_buffer);
    /* Display this time on the TextLayer */
   text_layer_set_text(s_time_layer, s_buffer);
+}
+
+/* Draw the battery power circles */
+static void canvas_update_proc(Layer *layer, GContext *ctx) {
+  /* Custom drawing happens in here. */
+  /* set up some stuff */
+  uint16_t radius = 6;
+  int start = 24;
+  int pos = 0;
+  int vpos = 152;
+  int i;
+  int bp;
+  cs = battery_state_service_peek();
+  bp = (cs.charge_percent / 20);
+  /* set default colors */
+  mystroke = GColorRed;
+  if (cs.is_charging == 1) {
+    myfill = GColorGreen;
+  } else {
+    myfill = GColorBlue;
+  }
+  
+  /* draw 5 circles */
+  for (i = 1; i < 6; i++) {
+    if (i > bp) {
+      myfill = GColorRed;
+    }
+    pos = start * i;  
+    /* set the line colour */
+    graphics_context_set_stroke_color(ctx, mystroke);
+    /* set the fill colour */
+    graphics_context_set_fill_color(ctx, myfill);
+    /* set stroke width - must be odd integer */
+    graphics_context_set_stroke_width(ctx, 3);
+    /* draw a circle */
+    GPoint center = GPoint(pos,vpos);
+    /* draw outline of circle */
+    graphics_draw_circle(ctx, center, radius);
+    /* fill circle */
+    graphics_fill_circle(ctx, center, radius);
+  }
 }
 
 static void main_window_load(Window *window) {
@@ -79,11 +123,16 @@ static void main_window_unload(Window *window){
   text_layer_destroy(s_day_layer);
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_date_layer);
+  layer_destory(s_canvas_layer);
 }
 
 static void handle_init(void) {
   /* Create main Window element and assign pointer */
   s_main_window = window_create();
+  GRect bounds = layer_get_bounds(window_get_root_layer(s_main_window);
+  /* Canvas layer */
+  s_canvas_layer = layer_create(bounds);
+  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
   /* Set handlers to manage the elemenet inside the window */
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
@@ -91,11 +140,16 @@ static void handle_init(void) {
   });
  /* Register with the TickTimerService */
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+ /* subscribe battery Service */
+ battery_state_service_subscribe(mbh); 
+ /* add canvas layer to window */
+ layer_add_child(window_get_root_layer(s_main_window), s_canvas_layer);
  /* Show the window on the watch, with animated=true */
   window_stack_push(s_main_window, true);
 }
 
 void handle_deinit(void) {
+  battery_state_service_unsubscribe();
   /* Destroy Window */
   window_destroy(s_main_window);
 }
