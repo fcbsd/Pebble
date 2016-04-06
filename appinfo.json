@@ -4,7 +4,7 @@
         ""
     ],
     "companyName": "pebble@crowsons.com",
-    "enableMultiJS": false,
+    "enableMultiJS": true,
     "longName": "fwf",
     "projectType": "native",
     "resources": {
@@ -17,8 +17,8 @@
         "basalt"
     ],
     "uuid": "1963d5e8-3d1e-413c-b262-d4acf5fb6c48",
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
-        "watchface": false
+        "watchface": true
     }
 }
