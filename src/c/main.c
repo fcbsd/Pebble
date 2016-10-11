@@ -1,4 +1,5 @@
 /* fwf: Fred's Watch Face */
+/* Simple British Default Watchface */
 #include <pebble.h>
 
 static Window *s_main_window;
@@ -6,8 +7,6 @@ static TextLayer *s_day_layer, *s_time_layer, *s_date_layer;
 static Layer *s_canvas_layer;
 static GColor myfill, mystroke;
 static GFont s_time_font, s_date_font;
-
-static BatteryChargeState cs;
 
 /* Function to Update Time */
 static void update_time() {
@@ -33,45 +32,6 @@ static void update_time() {
   text_layer_set_text(s_time_layer, s_buffer);
 }
 
-/* Draw the battery power circles */
-static void canvas_update_proc(Layer *layer, GContext *ctx) {
-  /* Custom drawing happens in here. */
-  /* set up some stuff */
-  uint16_t radius = 6;
-  int start = 24;
-  int pos = 0;
-  int vpos = 152;
-  int i;
-  int bp;
-  cs = battery_state_service_peek();
-  bp = (cs.charge_percent / 20);
-  /* set default colors */
-  mystroke = GColorRed;
-  if (cs.is_charging == 1) {
-    myfill = GColorGreen;
-  } 
-  /* draw 5 circles */
-  for (i = 1; i < 6; i++) {
-    if (i > bp) {
-      myfill = GColorRed;
-    } else {
-      myfill = GColorBlue;
-    }
-    pos = 144 - (start * i);  /* to draw circles from r to l */
-    /* set the line colour */
-    graphics_context_set_stroke_color(ctx, mystroke);
-    /* set the fill colour */
-    graphics_context_set_fill_color(ctx, myfill);
-    /* set stroke width - must be odd integer */
-    graphics_context_set_stroke_width(ctx, 3);
-    /* draw a circle */
-    GPoint center = GPoint(pos,vpos);
-    /* draw outline of circle */
-    graphics_draw_circle(ctx, center, radius);
-    /* fill circle */
-    graphics_fill_circle(ctx, center, radius);
-  }
-}
 
 static void main_window_load(Window *window) {
   /* Get information about the Window */
@@ -112,8 +72,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
   layer_add_child(window_layer, s_canvas_layer);
-  /* add canvas layer to window */
-  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
+
   /* Make sure the time is shown from the start */
   update_time();
 }
