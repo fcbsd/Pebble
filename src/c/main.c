@@ -42,13 +42,14 @@ static void main_window_load(Window *window) {
   s_canvas_layer = layer_create(bounds);
   /* Set Fonts */
   s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
+  /* s_time_font = fonts_get_system_font(FONT_KEY_ROBOTO_BOLD_SUBSET_49); */ 
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
   /* Create Day Textlayer */
   s_day_layer = text_layer_create(
     GRect(0, 4, bounds.size.w, 27));
   /* Create Time TextLayer with specific bounds */
   s_time_layer = text_layer_create(
-    GRect(0, 40, bounds.size.w, 60));
+    GRect(0, 38, bounds.size.w, 60));
   /* Create Date TextLayer */
   s_date_layer = text_layer_create(
     GRect(0, 90, bounds.size.w, 27));
@@ -90,7 +91,6 @@ static void main_window_unload(Window *window){
 }
 
 static void handle_init(void) {
-  static BatteryStateHandler mbh;
   /* Create main Window element and assign pointer */
   s_main_window = window_create();
     /* Set handlers to manage the elemenet inside the window */
@@ -100,8 +100,6 @@ static void handle_init(void) {
   });
   /* Register with the TickTimerService */
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  /* subscribe battery Service */
-  battery_state_service_subscribe(mbh); 
   /* Show the window on the watch, with animated=true */
   window_stack_push(s_main_window, true);
 }
